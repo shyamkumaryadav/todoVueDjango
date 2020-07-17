@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Todo</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href={% static "materialize/css/materialize.css" %} type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href={% static "materialize/css/style.css" %} type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body><ul id="dropdown1" class="dropdown-content">
+  <li><a href="#!">one</a></li>
+  <li><a href="#!">two</a></li>
+  <li class="divider"></li>
+  <li><a href="#!">three</a></li>
+</ul>
+<nav>
+  <div class="nav-wrapper">
+    <a href={% url 'index' %} class="brand-logo"><i class="large material-icons right">subject</i>Todo</a>
+    <ul class="right hide-on-med-and-down">
+      {% if user.is_authenticated %}
+          <li><a href={% url 'logout' %}>Logout</a></li>
+          <li><a class="dropdown-trigger" href="#!" onclick='$(this).dropdown();' data-target="dropdown1">Dropdown<i class="material-icons right">arrow_drop_down</i></a></li>
+        {% else %}
+          <li><a href={% url 'login' %}>Login</a></li>
+        {% endif %}
+    </ul>
+  </div>
+</nav>
+<div>
+  {% block main %}
+  {% endblock %}
+</div>
+  <footer class="page-footer teal">
+    <div class="container">
+        <div class="row l3 s12">
+          <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
+        </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+      Made by <a class="brown-text text-lighten-3" href="#">Materialize</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src={%static "materialize/js/materialize.js" %}></script>
+  <script src={%static "materialize/js/init.js" %}></script>
+
+  </body>
+</html>

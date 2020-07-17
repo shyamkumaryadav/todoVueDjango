@@ -1,0 +1,37 @@
+{% extends 'bash.html' %}
+
+{% block main %}
+ <div class="container">
+	<form class='row' method='POST'>
+		<div class="col l10 s12 center-align">
+		{% csrf_token %}
+		{% if form.non_field_errors %}
+		<div class"row">
+		<div class="card-panel teal lighten-2 col s12 l12">{{form.non_field_errors}}</div>
+		</div>
+		{% endif %}
+
+		<div class="row">
+		<div class="input-field col s12 l12">
+		{{form.username}}
+		<label for="{{form.username.id_for_label}}">{{form.username.label_tag}}</label>
+		</div>
+		</div>
+
+		<div class="row">
+		<div class="input-field col s12 l12">
+		{{form.password}}
+		<label for="{{form.password.id_for_label}}">{{form.password.label_tag}}</label>
+		</div>
+		</div>
+
+		<div class="row">
+		<button type="submit" class="waves-effect waves-light btn">
+		Login
+		</button>
+		</div>
+	</div>
+
+	</form>
+  </div>
+{% endblock main %}
