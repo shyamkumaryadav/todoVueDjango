@@ -1,3 +1,4 @@
+import re
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -56,6 +57,12 @@ TEMPLATES = [
     },
 ]
 
+IGNORABLE_404_URLS = [
+    re.compile(r'^/apple-touch-icon.*\.png$'),
+    re.compile(r'^/favicon\.ico$'),
+    re.compile(r'^/robots\.txt$'),
+]
+
 WSGI_APPLICATION = 'django_proj.wsgi.application'
 
 DATABASES = {
@@ -100,8 +107,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
+LANGUAGE_COOKIE_NAME = "todo_lang"
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'index'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
