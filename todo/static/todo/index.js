@@ -1,16 +1,12 @@
 var app = new Vue({
     el: '#app',
     data: {
-        todos: [
-            { text: "Hope 1" },
-            { text: "Hope 2" },
-            { text: "Hope 3" },
-            { text: "Hope 4" },
-        ]
+        todos: []
     },
-    methods:{
+    methods: {
         say: (e) => {
-            alert(e.target.value);
+            app.todos.push({ text: e.target.value });
+            e.target.value = '';
         },
         clear: (e) => {
             e.target.value = ''
