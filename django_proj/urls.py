@@ -1,11 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.contrib.auth import views
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
 
 urlpatterns = [
-    path('', include('todo.urls')),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('password-change/',
@@ -29,4 +28,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('favicon.ico',
          RedirectView.as_view(url=staticfiles_storage.url('favicon.ico'))),
+    re_path('^.*', include('todo.urls')), # to vue path
 ]
