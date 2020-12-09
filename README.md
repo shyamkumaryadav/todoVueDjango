@@ -8,7 +8,7 @@ pipenv install
 
 ### IMP
 ```bash
-pipenv run ./manage.py makemigrations todos # IMP App Name
+pipenv run ./manage.py makemigrations todos # App Name required
 pipenv run ./manage.py migrate  
 # Create Super User for /admin/
 # pipenv run ./manage.py createsuperuser 
