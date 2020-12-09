@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib.auth import views
 from django.views.generic.base import RedirectView, TemplateView
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -31,3 +33,10 @@ urlpatterns = [
          RedirectView.as_view(url=staticfiles_storage.url('favicon.ico'))),
     re_path('^.*', TemplateView.as_view(template_name='todos/index.html'), name="index"), # to vue path
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

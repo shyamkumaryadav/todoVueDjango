@@ -3,11 +3,14 @@
 ## Project setup
 ```
 npm install
+pipenv install
 ```
 
-### Compiles and hot-reloads for development
+### IMP
 ```
-npm run serve
+pipenv run ./manage.py makemigrations  
+pipenv run ./manage.py migrate  
+pipenv run ./manage.py collectstatic 
 ```
 
 ### Compiles and minifies for production
@@ -15,10 +18,7 @@ npm run serve
 npm run build
 ```
 
-### Lints and fixes files
+### hot-reloads for development
 ```
-npm run lint
+pipenv run ./manage.py runserver 0.0.0.0:8000
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
