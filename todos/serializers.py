@@ -53,13 +53,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TodoSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="username")
-    # user = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # user = serializers.PrimaryKeyRelatedField(many=True, read_only=True, write_only=)
 
     class Meta:
         model = Todo
         fields = '__all__'
-        # extra_kwargs = {'user': {'read_only': True},}
-    
+        extra_kwargs = {'user': {'write_only': True},}
+
+      
+    # def create(self, validated_data):
+    #     validated_data['user'] = User.objects.first()
+    #     print(self)
+    #     return Todo.objects.create(**validated_data)
     # def get_user(self, obj):
     #     print(obj)
     #     return getattr(obj, 'user', 12)
