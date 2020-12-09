@@ -30,7 +30,7 @@ urlpatterns = [
          name='password_reset_complete'),
     path('admin/', admin.site.urls),
     path('favicon.ico',
-         RedirectView.as_view(url=staticfiles_storage.url('favicon.ico'))),
+         RedirectView.as_view(url='static/favicon.ico')),
     re_path('^.*', TemplateView.as_view(template_name='todos/index.html'), name="index"), # to vue path
 ]
 
