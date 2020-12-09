@@ -1,24 +1,27 @@
 # todovuedjango
 
 ## Project setup
-```
+```bash
 npm install
 pipenv install
 ```
 
 ### IMP
-```
-pipenv run ./manage.py makemigrations todos
+```bash
+pipenv run ./manage.py makemigrations todos # IMP App Name
 pipenv run ./manage.py migrate  
+# Create Super User for /admin/
+# pipenv run ./manage.py createsuperuser 
+# --username admin --email testvue@django.org 
 pipenv run ./manage.py collectstatic 
 ```
 
 ### Compiles and minifies for production
-```
+```bash
 npm run build
 ```
 
 ### hot-reloads for development
-```
+```bash
 pipenv run ./manage.py runserver 0.0.0.0:8000
 ```
