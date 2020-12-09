@@ -1,7 +1,10 @@
 .DS_Store
 node_modules
 staticfiles
+todos/migrations
 /dist
+db.sqlite3
+*/__pycache__
 
 
 # local env files

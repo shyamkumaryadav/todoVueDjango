@@ -8,7 +8,7 @@ pipenv install
 
 ### IMP
 ```
-pipenv run ./manage.py makemigrations  
+pipenv run ./manage.py makemigrations todos
 pipenv run ./manage.py migrate  
 pipenv run ./manage.py collectstatic 
 ```
