@@ -13,7 +13,7 @@ pipenv run ./manage.py migrate
 # Create Super User for /admin/
 # pipenv run ./manage.py createsuperuser 
 # --username admin --email testvue@django.org 
-pipenv run ./manage.py collectstatic 
+pipenv run ./manage.py collectstatic --noinput 
 ```
 
 ### Compiles and minifies for production
