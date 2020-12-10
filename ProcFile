@@ -1,2 +1,2 @@
-release: ./start.sh
+release: bash start.sh
 web: gunicorn django_proj.wsgi
