@@ -90,17 +90,16 @@ export default {
           'X-CSRFToken': this.cook
         }
       })
-      .then(data => this.todos.splice(index, 1))
+      .then(data => console.log(`DELETE ${data} at Index ${index}`))
       .catch(error => console.log("Error: " + error))
     }
   },
-  data(){
-    return{
-      todos : [],
-      cook: '',
-      title: '',
-      body: '',
-    }
-  }
+
+  data: () => ({
+    todos : [],
+    cook: '',
+    title: '',
+    body: '',
+  })
 }
 </script>
