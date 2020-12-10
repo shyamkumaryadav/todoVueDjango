@@ -25,3 +25,6 @@ npm run build
 ```bash
 pipenv run ./manage.py runserver 0.0.0.0:8000
 ```
+
+### auto build on heroku
+[Heroku vuetododjango](https://todovuedjango.herokuapp.com/)
