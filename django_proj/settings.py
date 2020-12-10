@@ -1,6 +1,5 @@
 import re
 import os
-import django_heroku
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -70,6 +69,9 @@ IGNORABLE_404_URLS = [
 
 WSGI_APPLICATION = 'django_proj.wsgi.application'
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -128,6 +130,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 
 if not DEBUG:
     print("*"*12, "Heroku Database", "*"*12)
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True)
-    django_heroku.settings(locals())
+    DATABASES['default'] = dj_database_url.config()
