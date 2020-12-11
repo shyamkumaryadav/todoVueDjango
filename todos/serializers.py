@@ -6,6 +6,7 @@ from todos.models import Todo
 
 class UserSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    url = serializers.HyperlinkedIdentityField(read_only=True, view_name="user-detail")
     
     class Meta:
         model = User
@@ -51,23 +52,21 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+
 class TodoSerializer(serializers.HyperlinkedModelSerializer):
-    username = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="username")
-    # user = serializers.PrimaryKeyRelatedField(many=True, read_only=True, write_only=)
+    user_id = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="id")
+    user = serializers.StringRelatedField(many=False, read_only=True)
 
     class Meta:
         model = Todo
         fields = '__all__'
-        extra_kwargs = {'user': {'write_only': True},}
+        # exclude = ['user', ]
+        # extra_kwargs = {'user': {'write_only': True},}
 
       
-    # def create(self, validated_data):
-    #     validated_data['user'] = User.objects.first()
-    #     print(self)
-    #     return Todo.objects.create(**validated_data)
-    # def get_user(self, obj):
-    #     print(obj)
-    #     return getattr(obj, 'user', 12)
-
-    def get_queryset(self):
-        return self.request.user.todo_set.all()
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data['user'] = request.user
+        # print(validated_data)
+        return super(TodoSerializer, self).create(validated_data)

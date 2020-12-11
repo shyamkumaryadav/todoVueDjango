@@ -1,27 +1,29 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
-from todos.serializers import TodoSerializer, UserSerializer
+from todos import serializers, models
 
+
+class IsUserSame(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj == request.user
 
 class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    # permission_classes = [permissions.IsAuth]
-
-
-class TodoViewSet(viewsets.ModelViewSet):
-    serializer_class = TodoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        print(request.data)
-        # request.data["user"] = request.user
-        return self.create(request, *args, **kwargs)
+    serializer_class = serializers.UserSerializer
+    permission_classes = [permissions.IsAuthenticated|IsUserSame]
 
     def get_queryset(self):
-        return self.request.user.todo_set.all().order_by('date')
-    
+        user = self.request.user.id
+        return User.objects.filter(id=user)
+
+class TodoViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.TodoSerializer
+    # queryset = models.Todo.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.todo_set.all()

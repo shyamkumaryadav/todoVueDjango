@@ -25,7 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'todos'
+    'todos',
+    'django_cleanup',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 if not DEBUG:
     print("*"*12, "Heroku Database", "*"*12)
     DATABASES['default'] = dj_database_url.config()
+
+# Simple JWT
+SIMPLE_JWT = {
+    'UPDATE_LAST_LOGIN': True,
+    'AUTH_HEADER_TYPES': ('Bearer','shyamkumaryadav',),
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
