@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <h1>Todo <span v-if="$store.state.User.auth.status.loggedIn" @click="$store.dispatch('logout')">Login</span></h1>
+      <h1>Todo <span v-if="$store.state.User.auth.loggedIn" @click="$store.dispatch('logout')">Login</span></h1>
       
       <v-col>
         <input type="text" placeholder="Enter username" name="title" v-model="title">
@@ -10,7 +10,20 @@
       </v-col>
     </v-row>
     <v-row>
-      <p>{{ $store.state.User.auth }}</p>
+      <v-row v-for="todo in todos" :key="todo.url">
+        <h1><a :href="todo.url">{{ todo.title }}</a></h1>
+      </v-row>
+    </v-row>
+    <v-row>
+      <v-row><p>{{ $store.state.User }}</p></v-row>
+      <v-row v-if="$store.state.User.auth.loggedIn">
+        <v-row><p >Access: {{ $store.state.User.auth.user.access }}</p></v-row>
+        <v-row><p >Access: {{ parseJwt(this.$store.state.User.auth.user.access) }}</p></v-row>
+      </v-row>
+      <v-row v-if="$store.state.User.auth.loggedIn">
+        <v-row><p >Refresh: {{ $store.state.User.auth.user.refresh }}</p></v-row>
+        <v-row><p >Refresh: {{ parseJwt(this.$store.state.User.auth.user.refresh) }}</p></v-row>
+      </v-row>
     </v-row>
   </v-container>
 </template>
@@ -21,26 +34,12 @@
 export default {
   name: 'Home',
   created(){
-    const name = 'csrftoken'
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                this.cook = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
     fetch('/api/todos/')
     .then(res => res.json())
     .then(data => this.todos = data)
     .catch(err => console.error("Error: " + err))
   },
   methods:{
-    todoDone(todo){
-      
-    },
     todoAdd(){
       if(this.title == ''){
         alert("Enter Title")
@@ -51,14 +50,25 @@ export default {
         this.$store.dispatch('login', {username:this.title, password:this.body})
       }     
     },
-    
+    parseJwt (token) {
+      console.log(token)
+      var base64Url = token.split('.')[1]
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''))
+      console.log("Data", jsonPayload)
+      return JSON.parse(jsonPayload);
+    }
   },
-
+  computed:{
+  },
   data: () => ({
-    todos : [],
+    todos: [],
     cook: '',
     title: '',
     body: '',
-  })
+  }),
+  
 }
 </script>

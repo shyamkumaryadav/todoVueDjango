@@ -1,5 +1,14 @@
 <template>
   <v-app>
+    <v-system-bar app color='red' v-if="!this.$store.state.is_Online">
+      <v-icon>mdi-cloud-off-outline</v-icon>
+      <span>offline</span>
+      <v-spacer></v-spacer>
+      <v-icon>mdi-wifi-off</v-icon>
+      <v-icon>mdi-signal-off</v-icon>
+      <v-icon>mdi-airplane</v-icon>
+    </v-system-bar>
+
     <v-app-bar
       app
       hide-on-scroll

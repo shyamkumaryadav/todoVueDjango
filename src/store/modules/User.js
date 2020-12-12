@@ -3,8 +3,8 @@ import AuthService from '@/services/auth.service'
 
 const user = JSON.parse(localStorage.getItem('user'));
 const initialState = user
-  ? { status: { loggedIn: true }, user }
-  : { status: { loggedIn: false }, user: null };
+  ? { loggedIn: true, user }
+  : { loggedIn: false, user: null };
 
 export default {
     // namespaced: true,
@@ -16,22 +16,21 @@ export default {
     },
     mutations:{
         loginSuccess(state, user) {
-            state.auth.status.loggedIn = true;
-            state.auth.user = user;
+            state.auth = user;
         },
         loginFailure(state) {
-            state.auth.status.loggedIn = false;
+            state.auth.loggedIn = false;
             state.auth.user = null;
         },
         logout(state) {
-            state.auth.status.loggedIn = false;
+            state.auth.loggedIn = false;
             state.auth.user = null;
         },
         registerSuccess(state) {
-            state.auth.status.loggedIn = false;
+            state.auth.loggedIn = false;
         },
         registerFailure(state) {
-            state.auth.status.loggedIn = false;
+            state.auth.loggedIn = false;
         }
     },
     // dispatch
@@ -40,7 +39,7 @@ export default {
             return AuthService.login(user).then(
                 user => {
                     if (user.access && user.refresh){
-                        commit('loginSuccess', user)
+                        commit('loginSuccess', {...user, loggedIn:true})
                     }
                     return Promise.resolve(user)
                 },
