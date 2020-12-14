@@ -16,11 +16,6 @@ new Vue({
   store,
   render: h => h(App),
   created(){
-    window.addEventListener('offline', function(){
-      store.dispatch('setConnected', false)
-    })
-    window.addEventListener('online', function(){
-      store.dispatch('setConnected', true)
-    })
+    // not me
   }
 }).$mount('#app')
