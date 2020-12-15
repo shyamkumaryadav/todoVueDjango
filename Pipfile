@@ -24,11 +24,13 @@ sqlparse = "==0.4.1"
 text-unidecode = "==1.3"
 Django = "==3.1.4"
 Pillow = "==8.0.1"
+django-ckeditor = "*"
 
 [dev-packages]
 yapf = "*"
 pylint = "*"
 pylint-django = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.8"
@@ -37,5 +39,6 @@ python_version = "3.8"
 [scripts]
 collect = "python manage.py collectstatic --noinput"
 make = "python manage.py makemigrations"
+shell = "python manage.py shell"
 migrate = "python manage.py migrate"
 start = "python manage.py runserver 0.0.0.0:8000"

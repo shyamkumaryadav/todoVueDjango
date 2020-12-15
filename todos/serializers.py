@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from todos.models import Todo
+from todos.models import Todo, UserPost
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -70,3 +70,25 @@ class TodoSerializer(serializers.HyperlinkedModelSerializer):
             validated_data['user'] = request.user
         # print(validated_data)
         return super(TodoSerializer, self).create(validated_data)
+
+class UserPostSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="id")
+    user = serializers.StringRelatedField(many=False, read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        view_name='userpost-detail',
+        lookup_field='slug'
+    )
+    class Meta:
+        model = UserPost
+        fields = '__all__'
+        
+        # exclude = ['user', ]
+        # extra_kwargs = {'user': {'write_only': True},}
+
+      
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if not hasattr(validated_data, "user"):
+            if request and hasattr(request, "user"):
+                validated_data['user'] = request.user
+        return super(UserPostSerializer, self).create(validated_data)

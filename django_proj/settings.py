@@ -1,6 +1,8 @@
 import re
 import os
 import dj_database_url
+from ckeditor.configs import DEFAULT_CONFIG
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'ckeditor',
     'todos',
     'django_cleanup',
 ]
@@ -149,4 +152,39 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+}
+
+CUSTOM_TOOLBAR = [
+    {
+        "name": "document",
+        "items": [
+            "Styles", "Format", "Maximize", "Preview", "Blockquote", "Bold", "Italic", "Underline", "Strike", " -",
+            "TextColor", "BGColor",  "-",
+            "JustifyLeft", "JustifyCenter", "JustifyRight", "JustifyBlock",
+        ],
+    },
+    {
+        "name": "widgets",
+                "items": [
+                    "Undo", "Redo", "-",
+                    "NumberedList", "BulletedList", "-",
+                    "Outdent", "Indent", "-",
+                    "Link", "Unlink", "-",
+                    "Image", "CodeSnippet", "Table", "HorizontalRule", "SpecialChar", "-",
+                ],
+    },
+]
+
+CKEDITOR_CONFIGS = {
+    "default": DEFAULT_CONFIG,
+    "my-custom-toolbar": {
+        "skin": "moono-lisa",
+        "toolbar": CUSTOM_TOOLBAR,
+        'height': "auto",
+        'width': "auto",
+        "toolbarGroups": None,
+        "extraPlugins": ",".join(["image2", "codesnippet", "preview"]),
+        "removePlugins": ",".join(["image", "smiley"]),
+        "codeSnippet_theme": "xcode",
+    },
 }

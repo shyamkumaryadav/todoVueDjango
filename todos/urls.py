@@ -15,6 +15,7 @@ This is test code `test`
 """
 router.register('todos', views.TodoViewSet, 'todo')
 router.register('user', views.UserViewSet, 'user')
+router.register('post', views.UserPostViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

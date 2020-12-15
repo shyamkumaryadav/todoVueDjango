@@ -29,7 +29,7 @@ urlpatterns = [
      path('auth/', include('rest_framework.urls', namespace='rest_framework')),
      path('admin/', admin.site.urls),
      re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
-     re_path('^.*', TemplateView.as_view(template_name='todos/index.html'), name="index"), # to vue path
+     re_path('^.*S$', TemplateView.as_view(template_name='todos/index.html'), name="index"), # to vue path
 ]
 
 
