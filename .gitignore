@@ -3,6 +3,7 @@ node_modules
 staticfiles
 todos/migrations
 dist
+media/post/
 db.sqlite3
 */__pycache__
 
