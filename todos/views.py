@@ -1,39 +1,44 @@
+from rest_framework import permissions as rest_permissions
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, status
-from rest_framework import permissions
-from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import action
+from rest_framework import viewsets, status
 from todos import serializers, models
+from rest_framework import mixins
+from todos import permissions
 
 
-class IsUserSame(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj == request.user
-
-class IsUserAdminPost(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.user == request.user or request.user.is_staff
-
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.UserSerializer
-    permission_classes = [permissions.IsAuthenticated|IsUserSame]
+    permission_classes = [rest_permissions.IsAuthenticated|permissions.IsAuthor]
+    queryset = User.objects.all()
+    # lookup_field = "username"
 
-    def get_queryset(self):
-        user = self.request.user.id
-        return User.objects.filter(id=user)
+    def list(self, request, *args, **kwargs):
+        data = {'status': 'welcome sir!'}
+        try:
+            if request.user.is_staff:
+                queryset = self.filter_queryset(self.get_queryset())
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = self.get_serializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+
+                serializer = self.get_serializer(queryset, many=True)
+                data['user list'] = serializer.data
+            elif request.user.is_authenticated: 
+                data['url'] = self.get_serializer(request.user).data.get('url')
+                data['username'] = self.get_serializer(request.user).data.get('username')
+                data['first_name'] = self.get_serializer(request.user).data.get('first_name')
+                data['last_name'] = self.get_serializer(request.user).data.get('last_name')
+        except: pass
+        return Response(data, status=200)
 
 class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TodoSerializer
     # queryset = models.Todo.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [rest_permissions.IsAuthenticated]
 
     def get_queryset(self):
         return self.request.user.todo_set.all()
@@ -41,10 +46,10 @@ class TodoViewSet(viewsets.ModelViewSet):
 class UserPostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserPostSerializer
     queryset = models.UserPost.objects.all()
-    permission_classes = [IsUserAdminPost]
+    permission_classes = [permissions.IsUserAdminPost]
     lookup_field = "slug"
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes = [rest_permissions.IsAuthenticated])
     def set_vote(self, request, slug=None):
         """
         I am set the vote count by 1.
@@ -56,13 +61,13 @@ class UserPostViewSet(viewsets.ModelViewSet):
             return Response({'status': 'Vote Set'}, 
                             status=status.HTTP_200_OK)
         else:
-            return Response({'status': 'Vote Not Set'},
-                            status=status.HTTP_202_ACCEPTED)
+            return Response({"detail": "Not found."},
+                            status=status.HTTP_404_NOT_FOUND)
     
     @set_vote.mapping.delete
     def unset_vote(self, request, slug=None):
         "delete the vote on the post"
         post = self.get_object()
         user = request.user
-        _, is_like = models.UserLike.objects.get(user=user, post=post)
-        return Response({"status": "delete me ok"}, status=status.HTTP_200_OK)
+        get_object_or_404(models.UserLike, user=user, post=post).delete()
+        return Response({"status": "Vote unset"}, status=status.HTTP_200_OK)

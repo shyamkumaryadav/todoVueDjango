@@ -1,11 +1,11 @@
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from django.contrib.auth.models import User
 from todos.models import Todo, UserPost
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=False)
     url = serializers.HyperlinkedIdentityField(read_only=True, view_name="user-detail")
     
     class Meta:
@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {
                 'write_only': True,
+                'required': False,
                 'style': {
                     'input_type': 'password'
                 },
@@ -30,28 +31,29 @@ class UserSerializer(serializers.ModelSerializer):
         return value
     
     def validate(self, data):
-        if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
+        if self.context['request'].method in ["CREATE", "DELETE"]:
+            if data['password'] != data['confirm_password']:
+                raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
         return data
 
     def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
+        print("*"*10, "Create", "*"*10)
+        validated_data.pop('confirm_password')
+        user = super(UserSerializer, self).create(validated_data)
         user.set_password(validated_data['password'])
         user.save()
+        print("*"*10, "Create", "*"*10)
         return user
 
     def update(self, instance, validated_data):
-        if validated_data['confirm_password']:
-            instance.set_password(validated_data['confirm_password']) 
-            instance.save()
-        return instance
+        print("*"*10, "update", "*"*10)
+        print(validated_data)
+        if validated_data.pop('password'):
+            instance.set_password(validated_data.pop('confirm_password')) 
+        return super(UserSerializer, self).update(instance, validated_data)
 
-
+class PasswordChangeSerializsr(serializers.ModelSerializer):
+    pass
 
 class TodoSerializer(serializers.HyperlinkedModelSerializer):
     user_id = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="id")
@@ -72,8 +74,7 @@ class TodoSerializer(serializers.HyperlinkedModelSerializer):
         return super(TodoSerializer, self).create(validated_data)
 
 class UserPostSerializer(serializers.HyperlinkedModelSerializer):
-    user_id = serializers.SlugRelatedField(source='user', many= False, read_only=True, slug_field="id")
-    user = serializers.StringRelatedField(many=False, read_only=True)
+    user_name = serializers.StringRelatedField(source='user', many= False, read_only=True)
     url = serializers.HyperlinkedIdentityField(
         view_name='userpost-detail',
         lookup_field='slug'
@@ -81,9 +82,8 @@ class UserPostSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = UserPost
         fields = '__all__'
-        
         # exclude = ['user', ]
-        # extra_kwargs = {'user': {'write_only': True},}
+        extra_kwargs = {'user': {'read_only': True},}
 
       
     def create(self, validated_data):
