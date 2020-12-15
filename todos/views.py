@@ -49,10 +49,20 @@ class UserPostViewSet(viewsets.ModelViewSet):
         """
         I am set the vote count by 1.
         """
-        post = self.get_object() and False
-        print(post)
-        if post:
-            return Response({'status': 'password set'})
+        post = self.get_object()
+        user = request.user
+        _, is_like = models.UserLike.objects.get_or_create(user=user, post=post)
+        if is_like:
+            return Response({'status': 'Vote Set'}, 
+                            status=status.HTTP_200_OK)
         else:
-            return Response(self.serializer_class.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'Vote Not Set'},
+                            status=status.HTTP_202_ACCEPTED)
+    
+    @set_vote.mapping.delete
+    def unset_vote(self, request, slug=None):
+        "delete the vote on the post"
+        post = self.get_object()
+        user = request.user
+        _, is_like = models.UserLike.objects.get(user=user, post=post)
+        return Response({"status": "delete me ok"}, status=status.HTTP_200_OK)

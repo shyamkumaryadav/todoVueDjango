@@ -81,3 +81,6 @@ class UserLike(models.Model):
 
     def __str__(self):
         return f"{self.user} like {self.post}"
+    
+    class Meta:
+        unique_together = ('user', 'post',)
