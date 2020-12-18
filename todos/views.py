@@ -9,31 +9,54 @@ from rest_framework import mixins
 from todos import permissions
 
 
-class UserViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class UserViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.UserSerializer
-    permission_classes = [rest_permissions.IsAuthenticated|permissions.IsAuthor]
+    permission_classes = [rest_permissions.IsAuthenticated&permissions.IsAuthor]
     queryset = User.objects.all()
     # lookup_field = "username"
 
-    def list(self, request, *args, **kwargs):
-        data = {'status': 'welcome sir!'}
-        try:
-            if request.user.is_staff:
-                queryset = self.filter_queryset(self.get_queryset())
-                page = self.paginate_queryset(queryset)
-                if page is not None:
-                    serializer = self.get_serializer(page, many=True)
-                    return self.get_paginated_response(serializer.data)
+    # def list(self, request, *args, **kwargs):
+    #     data = {'status': 'welcome sir!'}
+    #     try:
+    #         if request.user.is_staff:
+    #             queryset = self.filter_queryset(self.get_queryset())
+    #             page = self.paginate_queryset(queryset)
+    #             if page is not None:
+    #                 serializer = self.get_serializer(page, many=True)
+    #                 return self.get_paginated_response(serializer.data)
 
-                serializer = self.get_serializer(queryset, many=True)
-                data['user list'] = serializer.data
-            elif request.user.is_authenticated: 
-                data['url'] = self.get_serializer(request.user).data.get('url')
-                data['username'] = self.get_serializer(request.user).data.get('username')
-                data['first_name'] = self.get_serializer(request.user).data.get('first_name')
-                data['last_name'] = self.get_serializer(request.user).data.get('last_name')
-        except: pass
-        return Response(data, status=200)
+    #             serializer = self.get_serializer(queryset, many=True)
+    #             data['user list'] = serializer.data
+    #         elif request.user.is_authenticated: 
+    #             data['url'] = self.get_serializer(request.user).data.get('url')
+    #             data['username'] = self.get_serializer(request.user).data.get('username')
+    #             data['first_name'] = self.get_serializer(request.user).data.get('first_name')
+    #             data['last_name'] = self.get_serializer(request.user).data.get('last_name')
+    #         else:
+    #             return Response(data, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    #     except: pass
+    #     return Response(data, status=200)
+    
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    # def update(self, request, *args, **kwargs):
+    #     return super(UserViewSet, self).update(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'], serializer_class=serializers.UserPasswordSerializer)
+    def set_password(self, request, pk=None):
+        print("*"*10, "password chabgeing", "*"*10)
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TodoSerializer

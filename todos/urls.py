@@ -14,7 +14,7 @@ This is test code `test`
 `from emanagement import views`
 """
 router.register('todos', views.TodoViewSet, 'todo')
-router.register('users', views.UserViewSet, 'user')
+router.register('user', views.UserViewSet)
 router.register('post', views.UserPostViewSet)
 
 urlpatterns = [

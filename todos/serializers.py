@@ -1,56 +1,118 @@
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from todos.models import Todo, UserPost
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=False)
+class UserCreateSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=True)
     url = serializers.HyperlinkedIdentityField(read_only=True, view_name="user-detail")
-    
+
     class Meta:
-        model = User
+        model = get_user_model()
         exclude = ['user_permissions','groups',]
+        read_only_fields = ['last_login', 'is_superuser', 'is_active', 'is_staff', 'date_joined',]
         extra_kwargs = {
             'password': {
                 'write_only': True,
-                'required': False,
+                'required': True,
                 'style': {
                     'input_type': 'password'
                 },
             },
-            'last_login': {'read_only': True},
-            'is_superuser': {'read_only': True},
-            'is_active': {'read_only': True},
-            'is_staff': {'read_only': True},
-            'date_joined': {'read_only': True},
         }
-    
     def validate_password(self, value):
         validate_password(value)
         return value
     
     def validate(self, data):
-        if self.context['request'].method in ["CREATE", "DELETE"]:
-            if data['password'] != data['confirm_password']:
-                raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
-        return data
-
+        if data['password'] != data.pop('confirm_password'):
+            raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
+        else:
+            return data
+    
     def create(self, validated_data):
-        print("*"*10, "Create", "*"*10)
-        validated_data.pop('confirm_password')
-        user = super(UserSerializer, self).create(validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        print("*"*10, "Create", "*"*10)
-        return user
+        return self.Meta.model.objects.create_user(**validated_data)
+
+
+class UserPasswordSerializer(serializers.ModelSerializer):
+    'change the password'
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=True)
+    old_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=True)
+    url = serializers.HyperlinkedIdentityField(read_only=True, view_name="user-detail")
+
+    class Meta:
+        model = get_user_model()
+        fields = ['old_password', 'password', 'confirm_password','url',]
+        # exclude = ['user_permissions','groups',]
+        # read_only_fields = ['last_login', 'is_superuser', 'is_active', 'is_staff', 'date_joined',]
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'required': True,
+                'style': {
+                    'input_type': 'password'
+                },
+            },
+        }
+    def validate_password(self, value):
+        validate_password(value)
+        return value
+    
+    def validate(self, data):
+        if data['password'] != data.pop('confirm_password'):
+            raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
+        else:
+            return data
+        
+    def validate_old_password(self, value):
+        if self.context.get('request').user.check_password(value):
+            return value
+        raise serializers.ValidationError("Old Password wrong!!!")
+            
+        
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data.get('password')).save()
+        return instance
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True, required=True)
+    url = serializers.HyperlinkedIdentityField(read_only=True, view_name="user-detail")
+    
+    class Meta:
+        model = get_user_model()
+        exclude = ['user_permissions','groups',]
+        read_only_fields = ['last_login', 'is_superuser', 'is_active', 'is_staff', 'date_joined',]
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'required': True,
+                'style': {
+                    'input_type': 'password'
+                },
+            },
+        }
+    
+    def validate(self, data):
+        if data['password'] != data.pop('confirm_password'):
+            raise serializers.ValidationError({"confirm_password": "Password not mathc!"})
+        return data
+    
+    def validate_password(self, value):
+        validate_password(value)
+        return value
+    
+    def create(self, validated_data):
+        pass
 
     def update(self, instance, validated_data):
-        print("*"*10, "update", "*"*10)
-        print(validated_data)
-        if validated_data.pop('password'):
-            instance.set_password(validated_data.pop('confirm_password')) 
-        return super(UserSerializer, self).update(instance, validated_data)
+        print("*"*10, validated_data, "*"*10)
+        validated_data.pop('password')
+        instance = super(UserSerializer, self).update(instance, validated_data)
+        print("*"*10, validated_data, "*"*10)
+        return instance
 
 class PasswordChangeSerializsr(serializers.ModelSerializer):
     pass
